@@ -1,0 +1,278 @@
+# NetBox Connection
+#netbox_url   = "https://netbox.example.com"
+#netbox_token = "your-api-token-here"
+netbox_insecure = true
+
+# --- Organizational Hierarchy & Sites ---
+infrastructure_map = {
+  "lab_us_east" = {
+    region       = "North America"
+    tenant_group = "Lab Infrastructure"
+    tenant_name  = "Network Lab"
+    site_name    = "LAB-USE-01"
+    status       = "active"
+    locations    = ["Main Server Room", "IDF-Floor-1", "IDF-Floor-2"]
+  },
+  "lab_eu_west" = {
+    region       = "Europe"
+    tenant_group = "Lab Infrastructure"
+    tenant_name  = "Network Lab"
+    site_name    = "LAB-EUW-01"
+    status       = "active"
+    locations    = ["Server Closet", "MDF"]
+  }
+}
+ 
+# --- Racks ---
+racks_map = {
+  "use_rack_01" = {
+    name     = "R01"
+    site     = "lab_us_east"
+    location = "Main Server Room"
+    status   = "active"
+      u_height  = 42
+      width    = "19"
+  },
+  "use_rack_02" = {
+    name     = "R02"
+    site     = "lab_us_east"
+    location = "Main Server Room"
+    status   = "active"
+    u_height  = 42
+    width    = "19"
+  },
+  "use_idf1_rack_01" = {
+    name     = "IDF1-R01"
+    site     = "lab_us_east"
+    location = "IDF-Floor-1"
+    status   = "active"
+    u_height  = 42
+    width    = "19"
+  },
+  "euw_rack_01" = {
+    name     = "R01"
+    site     = "lab_eu_west"
+    location = "Server Closet"
+    status   = "active"
+    u_height  = 42
+    width    = "19"
+  }
+}
+ 
+# --- Devices ---
+# Note: device_type values must match the "Model" field in NetBox exactly.
+devices_map = {
+  # US East — Core switches in a Virtual Chassis pair
+  "use_core_sw01" = {
+    name        = "USE-CORE-SW01"
+    rack        = "use_rack_01"
+    role        = "Core Switch"
+    platform    = "Cisco NX-OS"
+    device_type = "Nexus 93180YC-FX"
+    has_vc      = true
+    vdcs        = []
+    rack_position = 21
+    rack_face     = "front"
+  },
+  "use_core_sw02" = {
+    name        = "USE-CORE-SW02"
+    rack        = "use_rack_02"
+    role        = "Core Switch"
+    platform    = "Cisco NX-OS"
+    device_type = "Nexus 93180YC-FX"
+    has_vc      = true
+    vdcs        = []
+    rack_position = 21
+    rack_face     = "front"
+  },
+  # US East — Access switch (standalone)
+  "use_acc_sw01" = {
+    name        = "USE-ACC-SW01"
+    rack        = "use_idf1_rack_01"
+    role        = "Access Switch"
+    platform    = "Cisco IOS-XE"
+    device_type = "Catalyst 9300-48S"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 21
+    rack_face     = "front"
+  },
+  # US East — Perimeter firewall with virtual contexts
+  "use_fw01" = {
+    name        = "USE-FW01"
+    rack        = "use_rack_01"
+    role        = "Firewall"
+    platform    = "Palo Alto PAN-OS"
+    device_type = "PA-3050"
+    has_vc      = false
+    vdcs        = ["VSYS-CORP", "VSYS-DMZ", "VSYS-MGMT"]
+    rack_position = 22
+    rack_face     = "front"
+  },
+  # EU West — Core switch (standalone)
+  "euw_core_sw01" = {
+    name        = "EUW-CORE-SW01"
+    rack        = "euw_rack_01"
+    role        = "Core Switch"
+    platform    = "Juniper JUNOS"
+    device_type = "EX4300-48P"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 21
+    rack_face     = "front"
+  },
+ 
+  # US East — Servers in Main Server Room (R01)
+  "use_srv01" = {
+    name        = "USE-SRV01"
+    rack        = "use_rack_01"
+    role        = "Server"
+    platform    = "Red Hat Enterprise Linux"
+    device_type = "ProLiant DL380 Gen10"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 23
+    rack_face     = "front"
+  },
+  "use_srv02" = {
+    name        = "USE-SRV02"
+    rack        = "use_rack_01"
+    role        = "Server"
+    platform    = "Windows Server 2022"
+    device_type = "ProLiant DL380 Gen10"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 25
+    rack_face     = "front"
+  },
+ 
+  # US East — Servers in Main Server Room (R02)
+  "use_srv03" = {
+    name        = "USE-SRV03"
+    rack        = "use_rack_02"
+    role        = "Server"
+    platform    = "Red Hat Enterprise Linux"
+    device_type = "PowerEdge R740"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 22
+    rack_face     = "front"
+  },
+  "use_srv04" = {
+    name        = "USE-SRV04"
+    rack        = "use_rack_02"
+    role        = "Server"
+    platform    = "Ubuntu Linux"
+    device_type = "PowerEdge R740"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 24
+    rack_face     = "front"
+  },
+ 
+  # US East — Edge utility server in IDF-Floor-1
+  "use_idf1_srv01" = {
+    name        = "USE-IDF1-SRV01"
+    rack        = "use_idf1_rack_01"
+    role        = "Server"
+    platform    = "Ubuntu Linux"
+    device_type = "ProLiant DL380 Gen10"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 22
+    rack_face     = "front"
+  },
+ 
+  # EU West — Servers in Server Closet
+  "euw_srv01" = {
+    name        = "EUW-SRV01"
+    rack        = "euw_rack_01"
+    role        = "Server"
+    platform    = "Red Hat Enterprise Linux"
+    device_type = "PowerEdge R740"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 22
+    rack_face     = "front"
+  },
+  "euw_srv02" = {
+    name        = "EUW-SRV02"
+    rack        = "euw_rack_01"
+    role        = "Server"
+    platform    = "Windows Server 2022"
+    device_type = "PowerEdge R740"
+    has_vc      = false
+    vdcs        = []
+    rack_position = 24
+    rack_face     = "front"
+  }
+}
+ 
+# --- IPAM: RIRs (overriding defaults to keep it minimal for testing) ---
+rirs = {
+  "RFC1918" = { name = "RFC1918" },
+  "ARIN"    = { name = "ARIN" }
+}
+ 
+# --- IPAM: Aggregates ---
+aggregates = {
+  "lab_class_a" = { prefix = "10.0.0.0/8", rir = "RFC1918" },
+  "lab_class_c" = { prefix = "192.168.0.0/16", rir = "RFC1918" }
+}
+ 
+# --- IPAM: VLANs & Prefixes ---
+# Keys must be unique strings — use descriptive names to avoid HCL's
+# silent duplicate-key dropping (the example file's numeric keys collide
+# when the same VLAN ID appears across multiple sites).
+vlans = {
+  "use_vlan10_mgmt" = {
+    name        = "USE-MGMT"
+    vid         = 10
+    site        = "lab_us_east"
+    prefix      = "10.10.10.0/24"
+    description = "US-East Management"
+  },
+  "use_vlan20_servers" = {
+    name        = "USE-SERVERS"
+    vid         = 20
+    site        = "lab_us_east"
+    prefix      = "10.10.20.0/24"
+    description = "US-East Servers"
+  },
+  "use_vlan30_users" = {
+    name        = "USE-USERS"
+    vid         = 30
+    site        = "lab_us_east"
+    prefix      = "10.10.30.0/24"
+    description = "US-East End Users"
+  },
+  "use_vlan99_dmz" = {
+    name        = "USE-DMZ"
+    vid         = 99
+    site        = "lab_us_east"
+    prefix      = "10.10.99.0/24"
+    description = "US-East DMZ"
+  },
+  "use_vlan100_iot" = {
+    name        = "USE-IOT"
+    vid         = 100
+    site        = "lab_us_east"
+    prefix      = "10.10.100.0/24"
+    description = "US-East IoT"
+    status      = "reserved"
+  },
+  "euw_vlan10_mgmt" = {
+    name        = "EUW-MGMT"
+    vid         = 10
+    site        = "lab_eu_west"
+    prefix      = "10.20.10.0/24"
+    description = "EU-West Management"
+  },
+  "euw_vlan20_servers" = {
+    name        = "EUW-SERVERS"
+    vid         = 20
+    site        = "lab_eu_west"
+    prefix      = "10.20.20.0/24"
+    description = "EU-West Servers"
+  }
+}
